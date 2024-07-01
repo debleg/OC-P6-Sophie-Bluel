@@ -125,6 +125,37 @@ li:hover {
 	text-align: center;
 	margin-bottom: 1em;
 }
+
+.filters {
+	height: 38px;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	padding-top: 18px;
+	padding-bottom: 50px;
+}
+
+.filters button {
+	/* should this be a button or a span/div given the default values + border problem*/
+	min-width: 100px;
+	/*
+	padding: 0 15px;
+	max-width: 200px;*/
+	height: 36px;
+	background-color: transparent;
+	color:#1D6154;	
+	font-family: 'Syne';
+	font-weight: bold;
+	font-size: 16px;
+	border-radius: 60px;
+	border: 1px #1D6154 solid;
+}
+
+.active-button {
+	color: white;
+	background-color: #1D6154;
+}
+
 .gallery {
 	width: 100%;
 	display: grid;
