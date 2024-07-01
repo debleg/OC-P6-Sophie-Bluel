@@ -44,3 +44,43 @@ const displayWorks = async () => {
 }
 
 displayWorks();
+
+
+const fetchCategories = async () => {
+    try {
+        const response = await fetch("http://localhost:5678/api/categories");
+        const categories = await response.json();
+        return categories;
+
+    } catch (error) {
+        console.log("An error occurred:", error);
+    }
+}
+
+//creates the container for the category filters to be displayed
+const categoryFilters = document.querySelector(".filters");
+
+//creates the category buttons
+const categoryButtons = async () => {
+    try {
+        //Creates a "Tous" button that will allow the display of all categories
+        const buttonAll = document.createElement("button");
+        buttonAll.innerText = "Tous";
+        categoryFilters.appendChild(buttonAll);
+
+        //Allows the use of the return of the fetchCategories function
+        const categories = await fetchCategories();
+        
+        //creates a button for each category with its name
+        categories.forEach ((category) => {
+            const buttonCategory = document.createElement("button");
+            const categoryName = category.name;
+            buttonCategory.innerText = categoryName;
+            categoryFilters.appendChild(buttonCategory);
+        })
+    } catch (error) {
+        console.log("An error occurred:", error);
+    }
+}
+
+categoryButtons();
