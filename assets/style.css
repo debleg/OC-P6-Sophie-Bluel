@@ -135,7 +135,7 @@ li:hover {
 	padding-bottom: 50px;
 }
 
-.filters button {
+.category-button {
 	/* should this be a button or a span/div given the default values + border problem*/
 	min-width: 100px;
 	/*
