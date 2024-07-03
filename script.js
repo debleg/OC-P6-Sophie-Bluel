@@ -1,3 +1,12 @@
+//creates the container for the works to be displayed
+const gallery = document.querySelector(".gallery");
+//creates the container for the category filters to be displayed
+const categoryFilters = document.querySelector(".filters");
+
+/**
+ * Sends API request to retrieve works
+ * @returns works
+ */
 const fetchWorks = async () => {
   try {
     const response = await fetch("http://localhost:5678/api/works");
@@ -8,6 +17,10 @@ const fetchWorks = async () => {
   }
 };
 
+/**
+ * Displays the array of works through creation and insertion of html elements
+ * @param {Array} works
+ */
 function displayWorks(works) {
   works.forEach((work) => {
     //creation of the 3 components for each work
@@ -31,9 +44,7 @@ function displayWorks(works) {
   });
 }
 
-//creates the container for the works to be displayed
-const gallery = document.querySelector(".gallery");
-
+/** Displays works from the API fetch request */
 const displayFetchWorks = async () => {
   try {
     //works has to be stored in a variable as it doesn't exist outside of the function that generates it
@@ -44,8 +55,10 @@ const displayFetchWorks = async () => {
   }
 };
 
-displayFetchWorks();
-
+/**
+ * Sends API request to retrieve categories
+ * @returns categories
+ */
 const fetchCategories = async () => {
   try {
     const response = await fetch("http://localhost:5678/api/categories");
@@ -56,23 +69,7 @@ const fetchCategories = async () => {
   }
 };
 
-const mapCategories = async () => {
-  try {
-    const works = await fetchWorks();
-    const categoryNames = works.map((work) => {
-      return work.category.name;
-    });
-    console.log(new Set(categoryNames));
-  } catch (error) {
-    console.log("An error occurred: ", error);
-  }
-};
-mapCategories(); //<= does this need an await to be used?
-
-//creates the container for the category filters to be displayed
-const categoryFilters = document.querySelector(".filters");
-
-//creates the category buttons
+/** Creates the category button */
 const categoryButtons = async () => {
   try {
     //Creates a "Tous" button that will allow the display of all categories
@@ -87,7 +84,7 @@ const categoryButtons = async () => {
     //Allows the use of the return of the fetchCategories function
     const categories = await fetchCategories();
 
-    //creates a button for each category with its name
+    //Creates a button for each category with its name
     categories.forEach((category) => {
       const buttonCategory = document.createElement("button");
       const categoryName = category.name;
@@ -101,29 +98,35 @@ const categoryButtons = async () => {
   }
 };
 
-categoryButtons();
-
+/** Filters and displays works using category buttons */
 const filterCategory = async () => {
   try {
+    //Needed to manipulate works and buttons to filter correctly
     const works = await fetchWorks();
     const buttons = document.querySelectorAll(".category-button");
 
     Array.from(buttons).forEach((button) => {
+      //Filtering works on click
       button.addEventListener("click", () => {
-        button.classList.remove("active-button"); //unsure this works // not working, needs to be removed globally
+        //Removes the active style from all buttons before applying it to the clicked one
+        buttons.forEach((element) => {
+          element.classList.remove("active-button");
+        });
+        button.classList.add("active-button");
 
+        //Needed to differenciate buttons and compare with works categories
         const buttonDataFilter = button.dataFilter;
+
+        //Clearing the gallery to display the selected works
+        document.querySelector(".gallery").innerHTML = "";
+
+        //The Tous button resets the default (all works are displayed) or a filter is applied and only filtered works are displayed
         if (buttonDataFilter === "Tous") {
-          button.classList.add("active-button");
-          document.querySelector(".gallery").innerHTML = "";
           displayFetchWorks();
         } else {
-          button.classList.add("active-button");
           const worksFiltered = works.filter(
             (work) => work.category.name === buttonDataFilter
           );
-          document.querySelector(".gallery").innerHTML = "";
-          //displayWorksFiltered(worksFiltered)
           displayWorks(worksFiltered);
         }
       });
@@ -133,4 +136,11 @@ const filterCategory = async () => {
   }
 };
 
+//displays all works fetched with the API
+displayFetchWorks();
+
+//creates and displays the category filter buttons
+categoryButtons();
+
+//allows filtering using the buttons
 filterCategory();
