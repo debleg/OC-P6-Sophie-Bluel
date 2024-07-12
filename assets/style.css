@@ -140,10 +140,23 @@ body {
   background-color: #fffef8;
   min-height: 100vh;
 }
-header {
+
+.regular-header {
   display: flex;
   justify-content: space-between;
   padding: 50px 150px;
+}
+
+.edit-header {
+  height: 59px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  font-size: 16px;
+  gap: 21px;
 }
 
 main {
@@ -224,6 +237,29 @@ li:hover {
   margin-bottom: 1em;
 }
 
+.edit-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-area {
+  /*remove this bit and corresponding html if not in use */
+  display: inline-block;
+}
+
+.edit-link {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 30px;
+  margin-bottom: 2em;
+}
+
+.edit-link i {
+  margin-left: 32px;
+}
+
 .filters {
   height: 38px;
   display: flex;
@@ -270,7 +306,7 @@ li:hover {
 
 #contact,
 #login {
-  width: 50%;
+  width: 379px;
   margin: auto;
 }
 #contact > *,

@@ -20,17 +20,23 @@
   </head>
   <body>
     <header>
-      <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
-      <nav>
-        <ul>
-          <li><a href="#portfolio">projets</a></li>
-          <li><a href="#contact">contact</a></li>
-          <li class="nav-strong"><a href="./login.html">login</a></li>
-          <li>
-            <a href="#"><i class="fa-brands fa-instagram fa-xl"></i></a>
-          </li>
-        </ul>
-      </nav>
+      <div class="edit-header edit-mode">
+        <i class="fa-regular fa-pen-to-square"></i>
+        <p>Mode édition</p>
+      </div>
+      <div class="regular-header">
+        <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+        <nav>
+          <ul>
+            <li><a href="./index.html#portfolio">projets</a></li>
+            <li><a href="./index.html#contact">contact</a></li>
+            <li class="nav-strong"><a href="./login.html">login</a></li>
+            <li>
+              <a href="#"><i class="fa-brands fa-instagram fa-xl"></i></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
     <main>
       <section id="introduction">
@@ -57,7 +63,15 @@
         </article>
       </section>
       <section id="portfolio">
-        <h2>Mes Projets</h2>
+        <div class="edit-toggle">
+          <h2>Mes Projets</h2>
+          <div class="edit-area">
+            <a class="edit-link edit-mode">
+              <i class="fa-regular fa-pen-to-square"></i>
+              <p>modifier</p>
+            </a>
+          </div>
+        </div>
         <div class="filters"></div>
         <div class="gallery"></div>
       </section>
