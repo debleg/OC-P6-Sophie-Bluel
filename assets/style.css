@@ -128,17 +128,42 @@ table {
   border-spacing: 0;
 }
 /** end reset css**/
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 body {
-  max-width: 1140px;
-  margin: auto;
   font-family: "Work Sans";
   font-size: 14px;
+  background-color: #fffef8;
+  min-height: 100vh;
 }
-header {
+
+.regular-header {
   display: flex;
   justify-content: space-between;
-  margin: 50px 0;
+  padding: 50px 150px;
 }
+
+.edit-header {
+  height: 59px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  font-size: 16px;
+  gap: 21px;
+}
+
+main {
+  max-width: 1140px;
+  margin: auto;
+}
+
 section {
   margin: 50px 0;
 }
@@ -168,7 +193,9 @@ nav ul {
   display: flex;
   align-items: center;
   list-style-type: none;
+  gap: 20px;
 }
+
 nav li {
   padding: 0 10px;
   font-size: 1.2em;
@@ -177,6 +204,11 @@ nav li {
 li:hover {
   color: #b1663c;
 }
+
+.nav-strong {
+  font-weight: bold;
+}
+
 #introduction {
   display: flex;
   align-items: center;
@@ -203,6 +235,29 @@ li:hover {
 #portfolio h2 {
   text-align: center;
   margin-bottom: 1em;
+}
+
+.edit-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-area {
+  /*remove this bit and corresponding html if not in use */
+  display: inline-block;
+}
+
+.edit-link {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 30px;
+  margin-bottom: 2em;
+}
+
+.edit-link i {
+  margin-left: 32px;
 }
 
 .filters {
@@ -243,30 +298,42 @@ li:hover {
 .gallery img {
   width: 100%;
 }
-#contact {
-  width: 50%;
+
+#login {
+  padding-top: 100px;
+  padding-bottom: 150px;
+}
+
+#contact,
+#login {
+  width: 379px;
   margin: auto;
 }
-#contact > * {
+#contact > *,
+#login > * {
   text-align: center;
 }
-#contact h2 {
+#contact h2,
+#login h2 {
   margin-bottom: 20px;
 }
-#contact form {
+#contact form,
+#login form {
   text-align: left;
   margin-top: 30px;
   display: flex;
   flex-direction: column;
 }
 
-#contact input {
-  height: 50px;
-  font-size: 1.2em;
+#contact input,
+#login input {
+  height: 36px;
+  font-size: 1em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label,
+#login label {
   margin: 2em 0 1em 0;
 }
 #contact textarea {
@@ -285,8 +352,30 @@ input[type="submit"] {
   border-radius: 60px;
 }
 
+#login form a {
+  text-decoration: underline;
+  align-self: center;
+}
+
+footer {
+  background-color: white;
+  height: 60px;
+  width: 100%;
+}
+
+footer nav {
+  height: 60px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 footer nav ul {
   display: flex;
   justify-content: flex-end;
-  margin: 2em;
+  margin: 2em 7em;
+}
+
+footer nav ul li {
+  font-size: 1em;
 }

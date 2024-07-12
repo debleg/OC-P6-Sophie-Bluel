@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sophie Bluel - Architecte d'intérieur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="description" content="" />
+    <script
+      src="https://kit.fontawesome.com/4570b0b7eb.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script src="./login.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="regular-header">
+        <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+        <nav>
+          <ul>
+            <li><a href="./index.html#portfolio">projets</a></li>
+            <li><a href="./index.html#contact">contact</a></li>
+            <li class="nav-strong"><a href="./login.html">login</a></li>
+            <li>
+              <a href="#"><i class="fa-brands fa-instagram fa-xl"></i></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section id="login">
+        <h2>Login</h2>
+        <form action="/users/login" method="post" id="loginForm">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" name="loginEmail" id="loginEmail" required />
+          <label for="loginPassword">Mot de passe</label>
+          <input
+            type="password"
+            name="loginPassword"
+            id="loginPassword"
+            required
+          />
+          <input type="submit" name="login" value="Se connecter" />
+          <a href="#" id="forgottenLoginPassword">Mot de passe oublié</a>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <nav>
+        <ul>
+          <li>Mentions légales</li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

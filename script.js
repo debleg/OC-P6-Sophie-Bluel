@@ -69,35 +69,6 @@ const fetchCategories = async () => {
   }
 };
 
-/** Creates the category button */
-const categoryButtons = async () => {
-  try {
-    //Creates a "Tous" button that will allow the display of all categories
-    const buttonAll = document.createElement("button");
-    const buttonAllName = "Tous";
-    buttonAll.innerText = buttonAllName;
-    buttonAll.dataFilter = buttonAllName;
-    buttonAll.classList.add("category-button");
-    buttonAll.classList.add("active-button");
-    categoryFilters.appendChild(buttonAll);
-
-    //Allows the use of the return of the fetchCategories function
-    const categories = await fetchCategories();
-
-    //Creates a button for each category with its name
-    categories.forEach((category) => {
-      const buttonCategory = document.createElement("button");
-      const categoryName = category.name;
-      buttonCategory.innerText = categoryName;
-      buttonCategory.dataFilter = categoryName;
-      buttonCategory.classList.add("category-button");
-      categoryFilters.appendChild(buttonCategory);
-    });
-  } catch (error) {
-    console.log("An error occurred:", error);
-  }
-};
-
 /** Filters and displays works using category buttons */
 const filterCategory = async () => {
   try {
@@ -136,11 +107,40 @@ const filterCategory = async () => {
   }
 };
 
+/** Creates the category button, then applies the filtering function */
+const categoryButtons = async () => {
+  try {
+    //Creates a "Tous" button that will allow the display of all categories
+    const buttonAll = document.createElement("button");
+    const buttonAllName = "Tous";
+    buttonAll.innerText = buttonAllName;
+    buttonAll.dataFilter = buttonAllName;
+    buttonAll.classList.add("category-button");
+    buttonAll.classList.add("active-button");
+    categoryFilters.appendChild(buttonAll);
+
+    //Allows the use of the return of the fetchCategories function
+    const categories = await fetchCategories();
+
+    //Creates a button for each category with its name
+    categories.forEach((category) => {
+      const buttonCategory = document.createElement("button");
+      const categoryName = category.name;
+      buttonCategory.innerText = categoryName;
+      buttonCategory.dataFilter = categoryName;
+      buttonCategory.classList.add("category-button");
+      categoryFilters.appendChild(buttonCategory);
+    });
+
+    //allows filtering using the buttons
+    filterCategory();
+  } catch (error) {
+    console.log("An error occurred:", error);
+  }
+};
+
 //displays all works fetched with the API
 displayFetchWorks();
 
-//creates and displays the category filter buttons
+//creates the category filter buttons
 categoryButtons();
-
-//allows filtering using the buttons
-filterCategory();
