@@ -64,14 +64,39 @@
       </section>
       <section id="portfolio">
         <div class="edit-toggle">
-          <h2>Mes Projets</h2>
+          <h2>Mes projets</h2>
           <div class="edit-area">
-            <a class="edit-link edit-mode">
+            <a class="edit-link edit-mode js-modal" href="#modalWindow">
               <i class="fa-regular fa-pen-to-square"></i>
-              <p>modifier</p>
+              modifier
             </a>
           </div>
         </div>
+        <!--Modal goes here, with view one (remove-works) and view two (add-works)-->
+        <aside
+          id="modalWindow"
+          class="modal"
+          aria-hidden="true"
+          role="dialog"
+          aria-modal="false"
+          style="display: none"
+        >
+          <!--Should the display none stay here, video says so but ??-->
+          <div class="modal-wrapper js-modal-stop">
+            <button class="js-modal-close">
+              Fermer la boîte modale voir FA icon
+            </button>
+            <h3>Galerie Photo</h3>
+            <div class="gallery-bin">
+              <p>
+                Putting some text here as placeholder but this is where the
+                images will need to go
+              </p>
+            </div>
+            <hr />
+            <button class="add-works">Ajouter une photo</button>
+          </div>
+        </aside>
         <div class="filters"></div>
         <div class="gallery"></div>
       </section>

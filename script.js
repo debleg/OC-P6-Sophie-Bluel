@@ -144,3 +144,153 @@ displayFetchWorks();
 
 //creates the category filter buttons
 categoryButtons();
+
+//NEW MODAL WORK STARTS HERE
+
+//TODO
+//Next: style setup
+//2 views for the modal, see the Comp suggestion for view switch with a 'show view' function
+//also means having event listeners on the button of the first view, and the arrow of the second view
+//grab 5 font-awesome icons : bin, left arrow, cross and chevron down for the category dropdown plus the image placeholder
+//<i class="fa-solid fa-trash-can"></i>
+//<i class="fa-solid fa-arrow-left"></i>
+//<i class="fa-solid fa-xmark"></i>
+//<i class="fa-solid fa-chevron-down"></i>
+//<i class="fa-regular fa-image"></i>
+//
+//for the "gallery" grid of 5 in width, and object-fit: cover? check regular gallery, need to keep same ratio
+// write doc for all the modal stuff
+
+//QUESTIONS
+//check if the image fits the requirements (probably the form-data thing)
+//think about box-sizing and how it works with modal
+
+//IDEAS (animations)
+// possibly put a layer on top of the deleted that gets whiter, with bin overlap then fades (radial gradient from center??)
+//either page flip between views of layer of paint style that reveals the other (might look messy)
+//for first "load" maybe different shapes, or scaled fontawesome icon on white background
+//for "removal" something less showy
+//how about a border that goes around the page before flipping(and possibly after?)
+
+//this handles the changes based on the token in storage, document further later
+const filters = document.querySelector(".filters");
+const loginLink = document.querySelector(".nav-strong a");
+
+function editMode() {
+  filters.style.display = "none";
+  loginLink.innerText = "logout";
+  loginLink.addEventListener(
+    "click",
+    () => {
+      event.preventDefault(); //if not redirects to login page!
+      sessionStorage.removeItem("token");
+      filters.style.display = null;
+      document.querySelectorAll(".edit-mode").forEach((element) => {
+        element.style.display = "none";
+        loginLink.innerText = "login";
+      });
+    },
+    { once: true } //after one click that triggers the above, clicking the login link will redirect to the login page
+  );
+}
+
+function userTokenHandler() {
+  if (sessionStorage.getItem("token")) {
+    editMode();
+  } else {
+    loginLink.innerText = "login";
+    filters.style.display = null;
+    document.querySelectorAll(".edit-mode").forEach((element) => {
+      element.style.display = "none";
+    });
+  }
+}
+
+userTokenHandler();
+
+//modal opening starts here
+
+let modal = null;
+const focusableSelector = "button, a, i, input, textarea";
+let focusables = [];
+let previouslyFocusedElement = null;
+
+const openModal = function (e) {
+  e.preventDefault();
+  modal = document.querySelector(e.target.getAttribute("href"));
+  focusables = Array.from(modal.querySelectorAll(focusableSelector));
+  previouslyFocusedElement = document.querySelector(":focus");
+  modal.style.display = null;
+  focusables[0].focus();
+  modal.removeAttribute("aria-hidden");
+  modal.setAttribute("aria-modal", "true");
+  modal.addEventListener("click", closeModal);
+  modal.querySelector(".js-modal-close").addEventListener("click", closeModal);
+  modal
+    .querySelector(".js-modal-stop")
+    .addEventListener("click", stopPropagation);
+};
+
+const closeModal = function (e) {
+  if (modal === null) return;
+  if (previouslyFocusedElement !== null) previouslyFocusedElement.focus();
+  e.preventDefault();
+
+  modal.setAttribute("aria-hidden", "true");
+  modal.removeAttribute("aria-modal");
+  modal.removeEventListener("click", closeModal);
+  modal
+    .querySelector(".js-modal-close")
+    .removeEventListener("click", closeModal);
+  modal
+    .querySelector(".js-modal-stop")
+    .removeEventListener("click", stopPropagation);
+  //this is for the animation to work based on its length
+  const hideModal = function () {
+    modal.style.display = "none";
+    modal.removeEventListener("animationend", hideModal);
+    modal = null;
+  };
+  modal.addEventListener("animationend", hideModal);
+};
+
+const stopPropagation = function (e) {
+  e.stopPropagation();
+};
+
+const focusInModal = function (e) {
+  e.preventDefault;
+  let index = focusables.findIndex((f) => f === modal.querySelector(":focus"));
+
+  if (e.shiftkey === true) {
+    index--;
+  } else {
+    index++;
+  }
+
+  if (index >= focusables.length) {
+    index = 0;
+  }
+
+  if (index < 0) {
+    index = focusables.length - 1;
+  }
+  focusables[index].focus();
+};
+
+//could be worth using edit-link
+
+document.querySelectorAll(".js-modal").forEach((a) => {
+  a.addEventListener("click", openModal);
+});
+
+//document.querySelector(".edit-link").addEventListener("click", openModal)
+
+window.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" || e.key === "Esc") {
+    closeModal(e);
+  }
+  if (e.key === "Tab" && modal !== null) {
+    focusInModal(e);
+  }
+});

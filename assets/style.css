@@ -232,6 +232,11 @@ li:hover {
 #introduction p {
   margin-bottom: 0.5em;
 }
+
+#portfolio {
+  padding-top: 60px; /*otherwise section margins collapse!*/
+}
+
 #portfolio h2 {
   text-align: center;
   margin-bottom: 1em;
@@ -266,7 +271,6 @@ li:hover {
   justify-content: center;
   gap: 10px;
   padding-top: 18px;
-  padding-bottom: 50px;
 }
 
 .category-button {
@@ -293,6 +297,7 @@ li:hover {
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 20px;
   grid-row-gap: 20px;
+  padding-top: 50px;
 }
 
 .gallery img {
@@ -378,4 +383,76 @@ footer nav ul {
 
 footer nav ul li {
   font-size: 1em;
+}
+
+/*Modal starts here*/
+/*Box sizing should be border box for all, but if I do that this is going to mess with the rest so I'll see later where I apply this to */
+
+.modal {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s both ease-in-out;
+}
+
+.modal-wrapper {
+  overflow: auto; /* should this go on the actual gallery with fixed height? */
+  width: 405px;
+  max-width: calc(100vw - 20px);
+  height: 630px;
+  max-height: calc(100vh - 20px);
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  animation: scaleUp 0.5s both 0.1s ease-in-out;
+}
+
+.modal[aria-hidden="true"] {
+  animation-name: fadeOut;
+}
+
+.modal[aria-hidden="true"] .modal-wrapper {
+  animation-name: scaleDown;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleDown {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0);
+  }
 }
