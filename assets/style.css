@@ -323,7 +323,8 @@ li:hover {
   margin-bottom: 20px;
 }
 #contact form,
-#login form {
+#login form,
+.modal form {
   text-align: left;
   margin-top: 30px;
   display: flex;
@@ -331,14 +332,16 @@ li:hover {
 }
 
 #contact input,
-#login input {
+#login input,
+.modal input {
   height: 36px;
   font-size: 1em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
 #contact label,
-#login label {
+#login label,
+.modal label {
   margin: 2em 0 1em 0;
 }
 #contact textarea {
@@ -403,9 +406,9 @@ footer nav ul li {
 
 .modal-wrapper {
   overflow: auto; /* should this go on the actual gallery with fixed height? */
-  width: 405px;
+  width: 580px;
   max-width: calc(100vw - 20px);
-  height: 630px;
+  height: 620px;
   max-height: calc(100vh - 20px);
   padding: 25px;
   background-color: #ffffff;
@@ -454,5 +457,126 @@ footer nav ul li {
   }
   to {
     transform: scale(0);
+  }
+}
+
+.modal-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.modal .btn-close {
+  margin-left: auto;
+}
+
+.modal button {
+  border: none;
+  background-color: transparent;
+}
+
+.remove-works-view,
+.add-works-view {
+  box-sizing: border-box;
+  padding: 0 105px 0 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal h3 {
+  font-size: 26px;
+  padding: 18px 0;
+}
+
+.gallery-bin {
+  height: 380px;
+  overflow: auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-column-gap: 7px;
+  grid-row-gap: 30px;
+  padding-top: 27px;
+}
+
+.gallery-bin image {
+  width: 100%;
+}
+
+.add-picture-area {
+  height: 130px;
+  width: 420px;
+  margin-top: 20px;
+  padding: 20px 0;
+  background-color: #e8f1f6;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-picture-area i {
+  color: #b9c5cc;
+}
+
+.add-picture-area .add-picture {
+  background-color: #b9c5cc;
+  color: #306685;
+  font-size: 14px;
+  border-radius: 50px;
+  width: 173px;
+  height: 36px;
+}
+
+.add-picture-area .picture-details {
+  color: #444444;
+  font-size: 10px;
+}
+
+.add-works-view form {
+  width: 420px;
+  margin-top: 0;
+}
+.add-works-view label {
+  font-size: 14px;
+  color: #3d3d3d;
+}
+
+.add-works-view input {
+  height: 51px;
+}
+
+.modal hr {
+  width: 100%;
+  color: #b3b3b3;
+  margin-top: 42px;
+}
+
+.modal .modal-bottom-btn {
+  font-family: "Syne";
+  font-weight: 700;
+  color: white;
+  background-color: #1d6154;
+  margin: 2em auto;
+  width: 237px;
+  height: 36px;
+  text-align: center;
+  border-radius: 60px;
+  margin-bottom: 1em;
+}
+
+.slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(calc(100vh - 150px));
+  }
+  to {
+    transform: translateY(0);
   }
 }

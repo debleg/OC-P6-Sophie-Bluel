@@ -83,18 +83,45 @@
         >
           <!--Should the display none stay here, video says so but ??-->
           <div class="modal-wrapper js-modal-stop">
-            <button class="js-modal-close">
-              Fermer la boîte modale voir FA icon
-            </button>
-            <h3>Galerie Photo</h3>
-            <div class="gallery-bin">
-              <p>
-                Putting some text here as placeholder but this is where the
-                images will need to go
-              </p>
+            <div class="modal-nav">
+              <button class="js-modal-switch-view" style="display: none">
+                <i class="fa-solid fa-arrow-left fa-xl"></i>
+              </button>
+              <button class="js-modal-close btn-close">
+                <i class="fa-solid fa-xmark fa-lg"></i>
+              </button>
             </div>
-            <hr />
-            <button class="add-works">Ajouter une photo</button>
+            <div class="remove-works-view">
+              <h3>Galerie Photo</h3>
+              <div class="gallery-bin"></div>
+              <hr />
+              <button class="add-works-redirect modal-bottom-btn">
+                Ajouter une photo
+              </button>
+            </div>
+            <!--Second view starts here, not displayed on load-->
+            <div class="add-works-view" style="display: none">
+              <h3>Ajout photo</h3>
+              <div class="add-picture-area">
+                <i class="fa-regular fa-image fa-5x"></i>
+                <button class="add-picture">+ Ajouter photo</button>
+                <p class="picture-details">jpg, png: 4mo max</p>
+              </div>
+              <form>
+                <label for="add-works-title">Titre</label> <br />
+                <input
+                  type="text"
+                  name="add-works-title"
+                  id="add-works-title"
+                />
+                <br />
+                <label for="add-works-category">Catégorie</label> <br />
+                <input type="radio" name="" id="" />
+                <hr />
+                <input type="submit" value="Valider" class="modal-bottom-btn" />
+                <!--needs a clear class for 'not ready'-->
+              </form>
+            </div>
           </div>
         </aside>
         <div class="filters"></div>
