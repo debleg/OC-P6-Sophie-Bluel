@@ -28,6 +28,8 @@ function displayWorks(works) {
     const galleryImg = document.createElement("img");
     const figcaption = document.createElement("figcaption");
 
+    figure.dataset.id = work.id; //this allows its deletion when the modal is used to delete works
+
     //retrieves img url to use as source
     const galleryImgSrc = work.imageUrl;
     galleryImg.src = galleryImgSrc;
@@ -38,6 +40,7 @@ function displayWorks(works) {
     figcaption.innerText = elementTitle;
 
     //appends all elements, figure being the sub-container
+
     gallery.appendChild(figure);
     figure.appendChild(galleryImg);
     figure.appendChild(figcaption);
@@ -148,7 +151,7 @@ categoryButtons();
 //NEW MODAL WORK STARTS HERE
 
 //TODO
-//<i class="fa-solid fa-trash-can"></i>
+
 //<i class="fa-solid fa-chevron-down"></i>
 // write jsdoc
 
@@ -157,7 +160,6 @@ categoryButtons();
 
 //IDEAS (animations)
 // possibly put a layer on top of the deleted that gets whiter, with bin overlap then fades (radial gradient from center??)
-
 
 //this handles the changes based on the token in storage, document further later
 const filters = document.querySelector(".filters");
@@ -290,15 +292,13 @@ const secondaryView = document.querySelector(".add-works-view");
 const backBtn = document.querySelector(".js-modal-switch-view");
 //note the mainView is the visible one on first load with the second having display:none
 
-
 forwardBtn.addEventListener("click", () => {
   mainView.style.display = "none";
   backBtn.style.display = null;
   secondaryView.style.display = "none";
   secondaryView.classList.add("slideUp");
-  setTimeout(() => {
-    secondaryView.style.display = null;
-  }, 300);
+
+  secondaryView.style.display = null;
 });
 
 backBtn.addEventListener("click", () => {
@@ -306,7 +306,88 @@ backBtn.addEventListener("click", () => {
   secondaryView.style.display = "none";
   mainView.style.display = "none";
   mainView.classList.add("slideUp");
-  setTimeout(() => {
-    mainView.style.display = null;
-  }, 300);
+  mainView.style.display = null;
 });
+
+//revamping gallery-bin from existing gallery works
+
+const binGallery = document.querySelector(".bin-gallery");
+/**
+ * Displays the array of works through creation and insertion of html elements
+ * @param {Array} works
+ */
+function createBinGallery(works) {
+  works.forEach((work) => {
+    const binnedItem = document.createElement("div");
+    binnedItem.classList.add("binned-item");
+    binnedItem.dataset.id = work.id;
+    binnedItem.addEventListener("click", deleteWork);
+
+    const galleryImg = document.createElement("img");
+    const galleryImgSrc = work.imageUrl;
+    galleryImg.src = galleryImgSrc;
+
+    const elementTitle = work.title;
+    galleryImg.alt = elementTitle;
+
+    const binButton = document.createElement("button");
+    binButton.classList.add("bin-btn");
+
+    const galleryBinIcon = document.createElement("i");
+    galleryBinIcon.classList.add("fa-solid", "fa-trash-can", "fa-xs");
+
+    binGallery.appendChild(binnedItem);
+    binnedItem.appendChild(galleryImg);
+    binnedItem.appendChild(binButton);
+    binButton.appendChild(galleryBinIcon);
+  });
+}
+
+const displayBinWorks = async () => {
+  try {
+    const works = await fetchWorks();
+    createBinGallery(works);
+  } catch (error) {
+    console.log("An error occurred:", error);
+  }
+};
+
+displayBinWorks();
+
+const deleteWork = async (event) => {
+  try {
+    const id = event.currentTarget.dataset.id;
+    if (window.confirm("Supprimer cet élément définitivement ?")) {
+      const token = window.sessionStorage.getItem("token");
+
+      const response = await fetch(`http://localhost:5678/api/works/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        method: "DELETE",
+      });
+
+      const worksToDelete = document.querySelectorAll(`[data-id="${id}"]`);
+
+      switch (response.status) {
+        case 200:
+        case 204:
+          worksToDelete.forEach((work) => work.remove());
+          document.querySelector(".gallery").innerHTML = "";
+          document.querySelector(".bin-gallery").innerHTML = "";
+          displayFetchWorks();
+          displayBinWorks();
+          alert("L'élément a bien été supprimé");
+          break;
+        case 401:
+          alert("Cette suppression n'est pas autorisée");
+          break;
+        default:
+          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
+      }
+    }
+  } catch (error) {
+    console.log("An error occurred:", error);
+  }
+};

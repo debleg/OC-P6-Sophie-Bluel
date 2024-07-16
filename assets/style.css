@@ -248,11 +248,6 @@ li:hover {
   justify-content: center;
 }
 
-.edit-area {
-  /*remove this bit and corresponding html if not in use */
-  display: inline-block;
-}
-
 .edit-link {
   display: flex;
   gap: 10px;
@@ -477,7 +472,7 @@ footer nav ul li {
 .remove-works-view,
 .add-works-view {
   box-sizing: border-box;
-  padding: 0 105px 0 105px;
+  padding: 0 80px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -489,19 +484,39 @@ footer nav ul li {
   padding: 18px 0;
 }
 
-.gallery-bin {
+.bin-gallery {
   height: 380px;
   overflow: auto;
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-column-gap: 7px;
-  grid-row-gap: 30px;
   padding-top: 27px;
 }
 
-.gallery-bin image {
+.binned-item {
   width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.bin-gallery img {
+  width: 100%;
+  cursor: inherit;
+}
+
+.modal .bin-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #ffffff;
+  background-color: #000;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: inherit;
 }
 
 .add-picture-area {
