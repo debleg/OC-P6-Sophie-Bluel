@@ -207,6 +207,7 @@ li:hover {
 
 .nav-strong {
   font-weight: bold;
+  cursor: pointer;
 }
 
 #introduction {
@@ -328,12 +329,19 @@ li:hover {
 
 #contact input,
 #login input,
-.modal input {
+.modal input,
+.modal select {
   height: 36px;
   font-size: 1em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
+
+.modal select {
+  height: 51px;
+  background: transparent;
+}
+
 #contact label,
 #login label,
 .modal label {
@@ -384,7 +392,6 @@ footer nav ul li {
 }
 
 /*Modal starts here*/
-/*Box sizing should be border box for all, but if I do that this is going to mess with the rest so I'll see later where I apply this to */
 
 .modal {
   position: fixed;
@@ -400,7 +407,7 @@ footer nav ul li {
 }
 
 .modal-wrapper {
-  overflow: auto; /* should this go on the actual gallery with fixed height? */
+  overflow: auto;
   width: 580px;
   max-width: calc(100vw - 20px);
   height: 620px;
@@ -467,6 +474,7 @@ footer nav ul li {
 .modal button {
   border: none;
   background-color: transparent;
+  cursor: pointer;
 }
 
 .remove-works-view,
@@ -544,6 +552,7 @@ footer nav ul li {
   border-radius: 50px;
   width: 173px;
   height: 36px;
+  cursor: pointer;
 }
 
 .add-picture-area .picture-details {
@@ -581,6 +590,11 @@ footer nav ul li {
   text-align: center;
   border-radius: 60px;
   margin-bottom: 1em;
+  cursor: pointer;
+}
+
+.modal .disabled-btn {
+  background: #a7a7a7;
 }
 
 .slideUp {
@@ -594,4 +608,8 @@ footer nav ul li {
   to {
     transform: translateY(0);
   }
+}
+
+.no-display {
+  display: none;
 }

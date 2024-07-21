@@ -151,46 +151,35 @@ categoryButtons();
 //NEW MODAL WORK STARTS HERE
 
 //TODO
-
-//<i class="fa-solid fa-chevron-down"></i>
 // write jsdoc
-
-//QUESTIONS
-//check if the image fits the requirements (probably the form-data thing)
-
-//IDEAS (animations)
-// possibly put a layer on top of the deleted that gets whiter, with bin overlap then fades (radial gradient from center??)
 
 //this handles the changes based on the token in storage, document further later
 const filters = document.querySelector(".filters");
-const loginLink = document.querySelector(".nav-strong a");
+const loginLink = document.querySelector(".login-link");
+const logoutOption = document.querySelector(".logout-option");
 
 function editMode() {
-  filters.style.display = "none";
-  loginLink.innerText = "logout";
-  loginLink.addEventListener(
-    "click",
-    () => {
-      event.preventDefault(); //if not redirects to login page!
-      sessionStorage.removeItem("token");
-      filters.style.display = null;
-      document.querySelectorAll(".edit-mode").forEach((element) => {
-        element.style.display = "none";
-        loginLink.innerText = "login";
-      });
-    },
-    { once: true } //after one click that triggers the above, clicking the login link will redirect to the login page
-  );
+  filters.classList.add("no-display");
+  loginLink.classList.add("no-display");
+  logoutOption.addEventListener("click", () => {
+    sessionStorage.removeItem("token");
+    filters.classList.remove("no-display");
+    loginLink.classList.remove("no-display");
+    document.querySelectorAll(".edit-mode").forEach((element) => {
+      element.classList.add("no-display");
+    });
+    logoutOption.classList.add("no-display");
+  });
 }
 
 function userTokenHandler() {
   if (sessionStorage.getItem("token")) {
     editMode();
   } else {
-    loginLink.innerText = "login";
-    filters.style.display = null;
+    logoutOption.classList.add("no-display");
+    filters.classList.remove("no-display");
     document.querySelectorAll(".edit-mode").forEach((element) => {
-      element.style.display = "none";
+      element.classList.add("no-display");
     });
   }
 }
@@ -206,10 +195,10 @@ let previouslyFocusedElement = null;
 
 const openModal = function (e) {
   e.preventDefault();
-  modal = document.querySelector(e.target.getAttribute("href"));
+  modal = document.querySelector(e.currentTarget.getAttribute("href"));
   focusables = Array.from(modal.querySelectorAll(focusableSelector));
   previouslyFocusedElement = document.querySelector(":focus");
-  modal.style.display = null;
+  modal.classList.remove("no-display");
   focusables[0].focus();
   modal.removeAttribute("aria-hidden");
   modal.setAttribute("aria-modal", "true");
@@ -236,10 +225,19 @@ const closeModal = function (e) {
     .removeEventListener("click", stopPropagation);
   //this is for the animation to work based on its length
   const hideModal = function () {
-    modal.style.display = "none";
+    modal.classList.add("no-display");
     modal.removeEventListener("animationend", hideModal);
+
+    //makes sure that the first view is always shown when reopening the modal by having it be the default on close
+    if (mainView.classList.contains("no-display")) {
+      backBtn.classList.add("no-display");
+      secondaryView.classList.add("no-display");
+      mainView.classList.remove("no-display");
+    }
+
     modal = null;
   };
+
   modal.addEventListener("animationend", hideModal);
 };
 
@@ -267,12 +265,11 @@ const focusInModal = function (e) {
   focusables[index].focus();
 };
 
-//could be worth using edit-link
-
 document.querySelectorAll(".js-modal").forEach((a) => {
   a.addEventListener("click", openModal);
 });
 
+//decide on above or alternative (since there is only one link)
 //document.querySelector(".edit-link").addEventListener("click", openModal)
 
 window.addEventListener("keydown", function (e) {
@@ -288,28 +285,27 @@ const mainView = document.querySelector(".remove-works-view");
 //the button on the main view that leads to the other
 const forwardBtn = document.querySelector(".add-works-redirect");
 const secondaryView = document.querySelector(".add-works-view");
+secondaryView.classList.add("no-display");
 //the button on the second view that leads back (and needs hiding too)
 const backBtn = document.querySelector(".js-modal-switch-view");
-//note the mainView is the visible one on first load with the second having display:none
+backBtn.classList.add("no-display");
+//note the mainView is the visible one on first load
 
 forwardBtn.addEventListener("click", () => {
-  mainView.style.display = "none";
-  backBtn.style.display = null;
-  secondaryView.style.display = "none";
+  mainView.classList.add("no-display");
+  backBtn.classList.remove("no-display");
   secondaryView.classList.add("slideUp");
-
-  secondaryView.style.display = null;
+  secondaryView.classList.remove("no-display");
 });
 
 backBtn.addEventListener("click", () => {
-  backBtn.style.display = "none";
-  secondaryView.style.display = "none";
-  mainView.style.display = "none";
+  backBtn.classList.add("no-display");
+  secondaryView.classList.add("no-display");
   mainView.classList.add("slideUp");
-  mainView.style.display = null;
+  mainView.classList.remove("no-display");
 });
 
-//revamping gallery-bin from existing gallery works
+//revamping gallery-bin from existing gallery works <= rethink!
 
 const binGallery = document.querySelector(".bin-gallery");
 /**
