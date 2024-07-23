@@ -335,6 +335,7 @@ li:hover {
   font-size: 1em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  padding-left: 1em;
 }
 
 .modal select {
@@ -347,6 +348,7 @@ li:hover {
 .modal label {
   margin: 2em 0 1em 0;
 }
+
 #contact textarea {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -462,6 +464,8 @@ footer nav ul li {
   }
 }
 
+/*Elements used in both modal views*/
+
 .modal-nav {
   display: flex;
   justify-content: space-between;
@@ -492,13 +496,37 @@ footer nav ul li {
   padding: 18px 0;
 }
 
+.modal hr {
+  width: 100%;
+  color: #b3b3b3;
+  margin-top: 42px;
+}
+
+.modal .modal-bottom-btn {
+  font-family: "Syne";
+  font-weight: 700;
+  color: white;
+  background-color: #1d6154;
+  margin: 2em auto;
+  width: 237px;
+  height: 36px;
+  text-align: center;
+  border-radius: 60px;
+  margin-bottom: 1em;
+  cursor: pointer;
+}
+
+/*First modal view elements*/
+
 .bin-gallery {
   height: 380px;
   overflow: auto;
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-auto-rows: 102px;
   grid-column-gap: 7px;
+  grid-row-gap: 26px;
   padding-top: 27px;
 }
 
@@ -526,6 +554,8 @@ footer nav ul li {
   justify-content: center;
   cursor: inherit;
 }
+
+/*Second modal view elements*/
 
 .add-picture-area {
   height: 130px;
@@ -560,6 +590,10 @@ footer nav ul li {
   font-size: 10px;
 }
 
+.picture-preview {
+  max-height: 169px;
+  max-width: 100%;
+}
 .add-works-view form {
   width: 420px;
   margin-top: 0;
@@ -573,29 +607,11 @@ footer nav ul li {
   height: 51px;
 }
 
-.modal hr {
-  width: 100%;
-  color: #b3b3b3;
-  margin-top: 42px;
-}
-
-.modal .modal-bottom-btn {
-  font-family: "Syne";
-  font-weight: 700;
-  color: white;
-  background-color: #1d6154;
-  margin: 2em auto;
-  width: 237px;
-  height: 36px;
-  text-align: center;
-  border-radius: 60px;
-  margin-bottom: 1em;
-  cursor: pointer;
-}
-
 .modal .disabled-btn {
   background: #a7a7a7;
 }
+
+/*Animation used on modal view change*/
 
 .slideUp {
   animation: slideUp 0.3s ease-out;
@@ -610,6 +626,7 @@ footer nav ul li {
   }
 }
 
+/*Utilitary class to avoid manipulating display in html or javascript directly */
 .no-display {
   display: none;
 }

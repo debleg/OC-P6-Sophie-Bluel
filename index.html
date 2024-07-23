@@ -100,14 +100,11 @@
               </button>
             </div>
             <!--Second view starts here, not displayed on load-->
-            <div class="add-works-view">
+            <div class="add-works-view no-display">
               <h3>Ajout photo</h3>
-              <div class="add-picture-area">
-                <i class="fa-regular fa-image fa-5x"></i>
-                <button class="add-picture">+ Ajouter photo</button>
-                <p class="picture-details">jpg, png: 4mo max</p>
-              </div>
-              <form>
+              <form class="add-works-form">
+                <div class="add-picture-area"></div>
+
                 <label for="add-works-title">Titre</label> <br />
                 <input
                   type="text"
@@ -118,8 +115,8 @@
                 <br />
                 <label for="add-works-category">Catégorie</label> <br />
                 <select
-                  name="add-works-categories"
-                  id="add-works-categories"
+                  name="add-works-category"
+                  id="add-works-category"
                   required
                 >
                   <option value="" selected="selected"></option>
@@ -128,10 +125,9 @@
                 <input
                   type="submit"
                   value="Valider"
-                  class="modal-bottom-btn disabled-btn"
+                  class="add-works-btn modal-bottom-btn disabled-btn"
                   disabled
                 />
-                <!--needs a clear class for 'not ready'-->
               </form>
             </div>
           </div>

@@ -1,3 +1,5 @@
+//stores the login token for API authorization use
+const token = window.sessionStorage.getItem("token");
 //creates the container for the works to be displayed
 const gallery = document.querySelector(".gallery");
 //creates the container for the category filters to be displayed
@@ -18,41 +20,43 @@ const fetchWorks = async () => {
 };
 
 /**
- * Displays the array of works through creation and insertion of html elements
- * @param {Array} works
+ * Creates figure element in the main gallery for each work entered as parameter
+ * @param {Object} work
  */
-function displayWorks(works) {
-  works.forEach((work) => {
-    //creation of the 3 components for each work
-    const figure = document.createElement("figure");
-    const galleryImg = document.createElement("img");
-    const figcaption = document.createElement("figcaption");
+function displayWorks(work) {
+  //creation of the 3 components for each work
+  const figure = document.createElement("figure");
+  const galleryImg = document.createElement("img");
+  const figcaption = document.createElement("figcaption");
 
-    figure.dataset.id = work.id; //this allows its deletion when the modal is used to delete works
+  figure.dataset.id = work.id; //this allows its deletion when the modal is used to delete works
 
-    //retrieves img url to use as source
-    const galleryImgSrc = work.imageUrl;
-    galleryImg.src = galleryImgSrc;
+  //retrieves img url to use as source
+  const galleryImgSrc = work.imageUrl;
+  galleryImg.src = galleryImgSrc;
 
-    //retrieves title to use as img alt and figcaption
-    const elementTitle = work.title;
-    galleryImg.alt = elementTitle;
-    figcaption.innerText = elementTitle;
+  //retrieves title to use as img alt and figcaption
+  const elementTitle = work.title;
+  galleryImg.alt = elementTitle;
+  figcaption.innerText = elementTitle;
 
-    //appends all elements, figure being the sub-container
+  //appends all elements, figure being the sub-container
 
-    gallery.appendChild(figure);
-    figure.appendChild(galleryImg);
-    figure.appendChild(figcaption);
-  });
+  gallery.appendChild(figure);
+  figure.appendChild(galleryImg);
+  figure.appendChild(figcaption);
 }
 
-/** Displays works from the API fetch request */
+/**
+ * Loops through works to create gallery elements in main page
+ */
 const displayFetchWorks = async () => {
   try {
     //works has to be stored in a variable as it doesn't exist outside of the function that generates it
     const works = await fetchWorks();
-    displayWorks(works);
+    works.forEach((work) => {
+      displayWorks(work);
+    });
   } catch (error) {
     console.log("An error occurred:", error);
   }
@@ -101,7 +105,9 @@ const filterCategory = async () => {
           const worksFiltered = works.filter(
             (work) => work.category.name === buttonDataFilter
           );
-          displayWorks(worksFiltered);
+          Array.from(worksFiltered).forEach((worksFiltered) => {
+            displayWorks(worksFiltered);
+          });
         }
       });
     });
@@ -150,14 +156,14 @@ categoryButtons();
 
 //NEW MODAL WORK STARTS HERE
 
-//TODO
-// write jsdoc
-
-//this handles the changes based on the token in storage, document further later
+//specific sections whose display needs to be toggled
 const filters = document.querySelector(".filters");
 const loginLink = document.querySelector(".login-link");
 const logoutOption = document.querySelector(".logout-option");
 
+/**
+ * Handles display of elements when token is present and logout option to go back to regular main page
+ */
 function editMode() {
   filters.classList.add("no-display");
   loginLink.classList.add("no-display");
@@ -172,6 +178,9 @@ function editMode() {
   });
 }
 
+/**
+ * Allows the switch between normal and edit mode on the front page by displaying the relevant elements based on the token being present in storage
+ */
 function userTokenHandler() {
   if (sessionStorage.getItem("token")) {
     editMode();
@@ -186,13 +195,17 @@ function userTokenHandler() {
 
 userTokenHandler();
 
-//modal opening starts here
+//Modal starts here
 
 let modal = null;
 const focusableSelector = "button, a, i, input, textarea";
 let focusables = [];
 let previouslyFocusedElement = null;
 
+/**
+ * Opens modal on click on the link, taking focus accessibility behaviour into account
+ * @param {click} e
+ */
 const openModal = function (e) {
   e.preventDefault();
   modal = document.querySelector(e.currentTarget.getAttribute("href"));
@@ -209,6 +222,11 @@ const openModal = function (e) {
     .addEventListener("click", stopPropagation);
 };
 
+/**
+ * Closes the modal when the button has been clicked (or the outside of the modal)
+ * @param {click} e
+ * @returns
+ */
 const closeModal = function (e) {
   if (modal === null) return;
   if (previouslyFocusedElement !== null) previouslyFocusedElement.focus();
@@ -223,12 +241,12 @@ const closeModal = function (e) {
   modal
     .querySelector(".js-modal-stop")
     .removeEventListener("click", stopPropagation);
-  //this is for the animation to work based on its length
+  //allows the animation to work based on its length
   const hideModal = function () {
     modal.classList.add("no-display");
     modal.removeEventListener("animationend", hideModal);
 
-    //makes sure that the first view is always shown when reopening the modal by having it be the default on close
+    //ensures the first view is always shown when reopening the modal by having it be the default on close
     if (mainView.classList.contains("no-display")) {
       backBtn.classList.add("no-display");
       secondaryView.classList.add("no-display");
@@ -241,10 +259,18 @@ const closeModal = function (e) {
   modal.addEventListener("animationend", hideModal);
 };
 
+/**
+ * Stops modal from closing when clicking inside
+ * @param {click} e
+ */
 const stopPropagation = function (e) {
   e.stopPropagation();
 };
 
+/**
+ * Adjusts element focus base on user keyboard usage for accessibility reasons
+ * @param {KeyboardEvent} e
+ */
 const focusInModal = function (e) {
   e.preventDefault;
   let index = focusables.findIndex((f) => f === modal.querySelector(":focus"));
@@ -265,12 +291,7 @@ const focusInModal = function (e) {
   focusables[index].focus();
 };
 
-document.querySelectorAll(".js-modal").forEach((a) => {
-  a.addEventListener("click", openModal);
-});
-
-//decide on above or alternative (since there is only one link)
-//document.querySelector(".edit-link").addEventListener("click", openModal)
+document.querySelector(".edit-link").addEventListener("click", openModal);
 
 window.addEventListener("keydown", function (e) {
   if (e.key === "Escape" || e.key === "Esc") {
@@ -281,16 +302,17 @@ window.addEventListener("keydown", function (e) {
   }
 });
 
+//Modal view management starts here
+
+//Note: The main view is visible on each modal opening
+
 const mainView = document.querySelector(".remove-works-view");
-//the button on the main view that leads to the other
-const forwardBtn = document.querySelector(".add-works-redirect");
 const secondaryView = document.querySelector(".add-works-view");
-secondaryView.classList.add("no-display");
-//the button on the second view that leads back (and needs hiding too)
+const forwardBtn = document.querySelector(".add-works-redirect");
 const backBtn = document.querySelector(".js-modal-switch-view");
 backBtn.classList.add("no-display");
-//note the mainView is the visible one on first load
 
+//Behaviour of the forward button
 forwardBtn.addEventListener("click", () => {
   mainView.classList.add("no-display");
   backBtn.classList.remove("no-display");
@@ -298,6 +320,7 @@ forwardBtn.addEventListener("click", () => {
   secondaryView.classList.remove("no-display");
 });
 
+//Behaviour of the back button
 backBtn.addEventListener("click", () => {
   backBtn.classList.add("no-display");
   secondaryView.classList.add("no-display");
@@ -305,57 +328,61 @@ backBtn.addEventListener("click", () => {
   mainView.classList.remove("no-display");
 });
 
-//revamping gallery-bin from existing gallery works <= rethink!
+//First modal view starts here
 
 const binGallery = document.querySelector(".bin-gallery");
+
 /**
- * Displays the array of works through creation and insertion of html elements
- * @param {Array} works
+ * Creates gallery element in first modal with bin icon overlapped for later deletion for each work
+ * @param {object} work
  */
-function createBinGallery(works) {
-  works.forEach((work) => {
-    const binnedItem = document.createElement("div");
-    binnedItem.classList.add("binned-item");
-    binnedItem.dataset.id = work.id;
-    binnedItem.addEventListener("click", deleteWork);
+function createBinGallery(work) {
+  const binnedItem = document.createElement("div");
+  binnedItem.classList.add("binned-item");
+  binnedItem.dataset.id = work.id;
+  binnedItem.addEventListener("click", deleteWork);
 
-    const galleryImg = document.createElement("img");
-    const galleryImgSrc = work.imageUrl;
-    galleryImg.src = galleryImgSrc;
+  const galleryImg = document.createElement("img");
+  const galleryImgSrc = work.imageUrl;
+  galleryImg.src = galleryImgSrc;
 
-    const elementTitle = work.title;
-    galleryImg.alt = elementTitle;
+  const elementTitle = work.title;
+  galleryImg.alt = elementTitle;
 
-    const binButton = document.createElement("button");
-    binButton.classList.add("bin-btn");
+  const binButton = document.createElement("button");
+  binButton.classList.add("bin-btn");
 
-    const galleryBinIcon = document.createElement("i");
-    galleryBinIcon.classList.add("fa-solid", "fa-trash-can", "fa-xs");
+  const galleryBinIcon = document.createElement("i");
+  galleryBinIcon.classList.add("fa-solid", "fa-trash-can", "fa-xs");
 
-    binGallery.appendChild(binnedItem);
-    binnedItem.appendChild(galleryImg);
-    binnedItem.appendChild(binButton);
-    binButton.appendChild(galleryBinIcon);
-  });
+  binGallery.appendChild(binnedItem);
+  binnedItem.appendChild(galleryImg);
+  binnedItem.appendChild(binButton);
+  binButton.appendChild(galleryBinIcon);
 }
 
+/**
+ * Loops through works to create the gallery elements in modal
+ */
 const displayBinWorks = async () => {
   try {
     const works = await fetchWorks();
-    createBinGallery(works);
+    works.forEach((work) => {
+      createBinGallery(work);
+    });
   } catch (error) {
     console.log("An error occurred:", error);
   }
 };
 
-displayBinWorks();
-
+/**
+ * Deletes selected work on click in the first modal gallery using API call and removes the work dynamically
+ * @param {click} event
+ */
 const deleteWork = async (event) => {
   try {
     const id = event.currentTarget.dataset.id;
     if (window.confirm("Supprimer cet élément définitivement ?")) {
-      const token = window.sessionStorage.getItem("token");
-
       const response = await fetch(`http://localhost:5678/api/works/${id}`, {
         headers: {
           "Content-Type": "application/json",
@@ -387,3 +414,277 @@ const deleteWork = async (event) => {
     console.log("An error occurred:", error);
   }
 };
+
+displayBinWorks();
+
+// Second modal view starts here
+
+// select input
+const categoriesDropdownContainer =
+  document.getElementById("add-works-category");
+//image input section of the "Ajout Photo"
+const addPictureArea = document.querySelector(".add-picture-area");
+const addPictureBtn = document.createElement("button");
+const addPictureInput = document.createElement("input");
+
+/**
+ * Creates the category dropdown dynamically (one empty field hardcoded in html to have empty value show by default)
+ */
+const categoriesDropdown = async () => {
+  const categories = await fetchCategories();
+  categories.forEach((category) => {
+    const categoryName = category.name;
+    const categoryId = category.id;
+    const categoryOption = document.createElement("option");
+    categoryOption.value = categoryId;
+    categoryOption.innerText = categoryName;
+    categoriesDropdownContainer.appendChild(categoryOption);
+  });
+};
+
+/**
+ * Creates the picture input part of the form dynamically
+ */
+function populateAddPictureArea() {
+  //icon
+  const pictureIcon = document.createElement("i");
+  pictureIcon.classList.add("picture-icon", "fa-regular", "fa-image", "fa-5x");
+  //button
+  addPictureBtn.classList.add("add-picture");
+  addPictureBtn.innerText = "+ Ajouter photo";
+  //hidden input
+  addPictureInput.classList.add("no-display", "add-picture-input");
+  addPictureInput.setAttribute("id", "add-picture-input");
+  addPictureInput.setAttribute("type", "file");
+  addPictureInput.setAttribute("accept", "image/jpeg, image/png");
+  //size/format description
+  const pictureDetails = document.createElement("p");
+  pictureDetails.classList.add("picture-details");
+  pictureDetails.innerText = "jpg, png: 4mo max";
+  //appending all
+  addPictureArea.append(
+    pictureIcon,
+    addPictureBtn,
+    addPictureInput,
+    pictureDetails
+  );
+}
+
+/**
+ * Calls the two functions needed for the initial display of the second modal view
+ */
+function addWorksView() {
+  populateAddPictureArea();
+  categoriesDropdown();
+}
+
+addWorksView();
+
+//Secondary modal input treatment starts here
+
+//general form variables
+const addWorksForm = document.querySelector(".add-works-form");
+const addWorksBtn = document.querySelector(".add-works-btn");
+//image related variables
+const maxPictureSize = 4 * 1024 * 1024;
+let selectedPicture = null;
+let fileBuffer = null;
+//other fields
+let addWorksCategory = null;
+let addWorksTitle = null;
+
+/**
+ * Displays a preview of the user input image file where the picture input form was
+ * @param {ImageData} pictureInput
+ */
+function displayNewImage(pictureInput) {
+  const displayImage = new FileReader();
+  displayImage.onload = (e) => {
+    fileBuffer = e.target.result;
+    const picturePreview = document.createElement("img");
+    picturePreview.classList.add("picture-preview");
+    picturePreview.src = URL.createObjectURL(pictureInput);
+    //clear area and preview image
+    addPictureArea.innerHTML = "";
+    addPictureArea.appendChild(picturePreview);
+  };
+  displayImage.readAsArrayBuffer(pictureInput);
+}
+
+/**
+ * Handles form image input with checks for size and type
+ */
+function imageInput() {
+  //clicking the button opens the input
+  addPictureBtn.addEventListener("click", () => {
+    addPictureInput.click();
+  });
+
+  addPictureInput.addEventListener("change", (event) => {
+    const pictureInput = event.target.files[0];
+
+    if (!pictureInput) return;
+
+    if (
+      pictureInput.type !== "image/jpeg" &&
+      pictureInput.type !== "image.png"
+    ) {
+      alert("Veuillez sélectionner une image");
+      return;
+    }
+
+    if (pictureInput.size > maxPictureSize) {
+      alert("La taille de votre image dépasse la limite autorisée");
+      return;
+    }
+
+    selectedPicture = pictureInput;
+
+    displayNewImage(pictureInput);
+  });
+}
+
+/**
+ * Turns fileBuffer from picture input into binary string needed for the API POST checking selectedPicture type
+ * returns blob for API POST
+ */
+function getPictureBlob() {
+  if (!fileBuffer) return null;
+  if (selectedPicture.type == "image/jpeg") {
+    return new Blob([fileBuffer], { type: "image/jpeg" });
+  } else {
+    return new Blob([fileBuffer], { type: "image/png" });
+  }
+}
+
+/**
+ * Handles separate form input fields (picture is triggered first)
+ */
+function newWorksFormInput() {
+  imageInput();
+
+  document
+    .getElementById("add-works-title")
+    .addEventListener("input", (event) => {
+      addWorksTitle = event.target.value.trim();
+      if (!addWorksTitle) {
+        alert("Veuillez choisir un titre pour ce nouvel élément");
+      }
+    });
+
+  categoriesDropdownContainer.addEventListener("input", (event) => {
+    addWorksCategory = event.target.value;
+    if (!addWorksCategory) {
+      alert("Veuillez choisir une catégorie pour ce nouvel élément");
+    }
+  });
+}
+
+/**
+ * Checks that the form is fully completed before the button becomes clickable, alerts the user if the button is clicked before that
+ */
+function newWorksFormCheck() {
+  // Bundles data together to be checked as one
+  let formFields = {
+    picture: false,
+    title: false,
+    category: false,
+  };
+
+  // Gets updated with every input
+  const updateSubmitButton = () => {
+    const formIsValid = Object.values(formFields).every(
+      (field) => field === true
+    );
+
+    if (formIsValid) {
+      addWorksBtn.classList.remove("disabled-btn");
+      addWorksBtn.disabled = false;
+    } else {
+      addWorksBtn.classList.add("disabled-btn");
+      addWorksBtn.disabled = true;
+    }
+  };
+
+  addWorksForm.addEventListener("input", (event) => {
+    // Updates the corresponding field in formFields
+    if (event.target.id === "add-picture-input") {
+      formFields.picture = event.target.files.length > 0;
+    } else if (event.target.id === "add-works-title") {
+      formFields.title = event.target.value.trim() !== "";
+    } else if (event.target.id === "add-works-category") {
+      formFields.category = event.target.value !== "";
+    }
+
+    updateSubmitButton();
+  });
+
+  addWorksBtn.addEventListener("click", (event) => {
+    // Sends an alert to the user if the button is clicked before the form is fully filled
+    if (!Object.values(formFields).every((field) => field === true)) {
+      alert("Merci de remplir tous les champs de ce formulaire");
+      event.preventDefault();
+    }
+  });
+}
+
+/**
+ * Sends API POST request after the form inputs have been treated and checked and updates the galleries dynamically with the new work
+ */
+function newWorksFormSubmit() {
+  newWorksFormInput();
+
+  newWorksFormCheck();
+
+  addWorksForm.addEventListener("submit", async function (event) {
+    try {
+      event.preventDefault;
+      //the formData requires a binary string for the image
+      const addWorksPicture = getPictureBlob();
+
+      const formData = new FormData();
+      formData.append("image", addWorksPicture);
+      formData.append("title", addWorksTitle);
+      formData.append("category", addWorksCategory);
+      const response = await fetch("http://localhost:5678/api/works/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const newWork = await response.json();
+      switch (response.status) {
+        case 201:
+          //clears each gallery and puts the new work through the function to create the respective elements
+          document.querySelector(".gallery").innerHTML = "";
+
+          displayWorks(newWork);
+          document.querySelector(".bin-gallery").innerHTML = "";
+          createBinGallery(newWork);
+
+          alert("L'élément a bien été ajouté");
+          //resetting the form and the picture input area
+          addWorksForm.reset();
+          populateAddPictureArea();
+
+          break;
+        case 400:
+          alert(
+            "Le formulaire n'a pas pu être traité, veuillez vérifier la validité des champs"
+          );
+          break;
+        case 401:
+          alert("Cet ajout n'est pas autorisé");
+          break;
+        default:
+          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
+      }
+    } catch (error) {
+      console.log("An error occurred:", error);
+    }
+  });
+}
+
+newWorksFormSubmit();
