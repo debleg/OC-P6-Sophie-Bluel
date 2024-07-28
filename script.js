@@ -397,10 +397,6 @@ const deleteWork = async (event) => {
         case 200:
         case 204:
           worksToDelete.forEach((work) => work.remove());
-          document.querySelector(".gallery").innerHTML = "";
-          document.querySelector(".bin-gallery").innerHTML = "";
-          displayFetchWorks();
-          displayBinWorks();
           alert("L'élément a bien été supprimé");
           break;
         case 401:
@@ -448,18 +444,26 @@ const categoriesDropdown = async () => {
 function populateAddPictureArea() {
   //icon
   const pictureIcon = document.createElement("i");
-  pictureIcon.classList.add("picture-icon", "fa-regular", "fa-image", "fa-5x");
+  pictureIcon.classList.add(
+    "picture-icon",
+    "picture-form-element",
+    "fa-regular",
+    "fa-image",
+    "fa-5x"
+  );
   //button
-  addPictureBtn.classList.add("add-picture");
+  addPictureBtn.classList.add("add-picture", "picture-form-element");
   addPictureBtn.innerText = "+ Ajouter photo";
+  addPictureBtn.setAttribute("type", "button");
   //hidden input
   addPictureInput.classList.add("no-display", "add-picture-input");
   addPictureInput.setAttribute("id", "add-picture-input");
+  addPictureInput.setAttribute("name", "add-picture-image");
   addPictureInput.setAttribute("type", "file");
   addPictureInput.setAttribute("accept", "image/jpeg, image/png");
   //size/format description
   const pictureDetails = document.createElement("p");
-  pictureDetails.classList.add("picture-details");
+  pictureDetails.classList.add("picture-details", "picture-form-element");
   pictureDetails.innerText = "jpg, png: 4mo max";
   //appending all
   addPictureArea.append(
@@ -470,28 +474,18 @@ function populateAddPictureArea() {
   );
 }
 
-/**
- * Calls the two functions needed for the initial display of the second modal view
- */
-function addWorksView() {
-  populateAddPictureArea();
-  categoriesDropdown();
-}
-
-addWorksView();
+populateAddPictureArea();
+categoriesDropdown();
 
 //Secondary modal input treatment starts here
 
 //general form variables
 const addWorksForm = document.querySelector(".add-works-form");
 const addWorksBtn = document.querySelector(".add-works-btn");
+const pictureFormElement = document.querySelectorAll(".picture-form-element");
 //image related variables
 const maxPictureSize = 4 * 1024 * 1024;
 let selectedPicture = null;
-let fileBuffer = null;
-//other fields
-let addWorksCategory = null;
-let addWorksTitle = null;
 
 /**
  * Displays a preview of the user input image file where the picture input form was
@@ -499,15 +493,16 @@ let addWorksTitle = null;
  */
 function displayNewImage(pictureInput) {
   const displayImage = new FileReader();
-  displayImage.onload = (e) => {
-    fileBuffer = e.target.result;
+  displayImage.onload = () => {
     const picturePreview = document.createElement("img");
     picturePreview.classList.add("picture-preview");
     picturePreview.src = URL.createObjectURL(pictureInput);
-    //clear area and preview image
-    addPictureArea.innerHTML = "";
     addPictureArea.appendChild(picturePreview);
   };
+  //clear area and preview image
+  pictureFormElement.forEach((element) => {
+    element.classList.add("no-display");
+  });
   displayImage.readAsArrayBuffer(pictureInput);
 }
 
@@ -545,111 +540,52 @@ function imageInput() {
 }
 
 /**
- * Turns fileBuffer from picture input into binary string needed for the API POST checking selectedPicture type
- * returns blob for API POST
+ * Sends API POST request after the form completion has been checked, then updates the galleries dynamically with the new work
  */
-function getPictureBlob() {
-  if (!fileBuffer) return null;
-  if (selectedPicture.type == "image/jpeg") {
-    return new Blob([fileBuffer], { type: "image/jpeg" });
-  } else {
-    return new Blob([fileBuffer], { type: "image/png" });
-  }
-}
-
-/**
- * Handles separate form input fields (picture is triggered first)
- */
-function newWorksFormInput() {
+function newWorksFormSubmit() {
   imageInput();
 
-  document
-    .getElementById("add-works-title")
-    .addEventListener("input", (event) => {
-      addWorksTitle = event.target.value.trim();
-      if (!addWorksTitle) {
-        alert("Veuillez choisir un titre pour ce nouvel élément");
-      }
-    });
+  let title = document.getElementById("add-works-title");
+  let category = document.getElementById("add-works-category");
 
-  categoriesDropdownContainer.addEventListener("input", (event) => {
-    addWorksCategory = event.target.value;
-    if (!addWorksCategory) {
-      alert("Veuillez choisir une catégorie pour ce nouvel élément");
-    }
-  });
-}
+  //creates a paragraph to display as an alert if the form is not fully filled
+const formAlert = document.createElement("p")
+formAlert.innerText = "Veuillez remplir tout le formulaire avant l'envoi"
+formAlert.classList.add("no-display", "form-alert")
+addWorksForm.appendChild(formAlert)
 
-/**
- * Checks that the form is fully completed before the button becomes clickable, alerts the user if the button is clicked before that
- */
-function newWorksFormCheck() {
-  // Bundles data together to be checked as one
-  let formFields = {
-    picture: false,
-    title: false,
-    category: false,
-  };
-
-  // Gets updated with every input
-  const updateSubmitButton = () => {
-    const formIsValid = Object.values(formFields).every(
-      (field) => field === true
-    );
-
-    if (formIsValid) {
+  addWorksForm.addEventListener("change", () => {
+   
+    //checks all fields are filled with visual cues for the user
+    if (
+      selectedPicture &&
+      title.reportValidity() &&
+      category.reportValidity()
+    ) {
       addWorksBtn.classList.remove("disabled-btn");
       addWorksBtn.disabled = false;
+      formAlert.classList.add("no-display")
     } else {
       addWorksBtn.classList.add("disabled-btn");
       addWorksBtn.disabled = true;
-    }
-  };
-
-  addWorksForm.addEventListener("input", (event) => {
-    // Updates the corresponding field in formFields
-    if (event.target.id === "add-picture-input") {
-      formFields.picture = event.target.files.length > 0;
-    } else if (event.target.id === "add-works-title") {
-      formFields.title = event.target.value.trim() !== "";
-    } else if (event.target.id === "add-works-category") {
-      formFields.category = event.target.value !== "";
-    }
-
-    updateSubmitButton();
-  });
-
-  addWorksBtn.addEventListener("click", (event) => {
-    // Sends an alert to the user if the button is clicked before the form is fully filled
-    if (!Object.values(formFields).every((field) => field === true)) {
-      alert("Merci de remplir tous les champs de ce formulaire");
-      event.preventDefault();
+      formAlert.classList.remove("no-display")
     }
   });
-}
-
-/**
- * Sends API POST request after the form inputs have been treated and checked and updates the galleries dynamically with the new work
- */
-function newWorksFormSubmit() {
-  newWorksFormInput();
-
-  newWorksFormCheck();
 
   addWorksForm.addEventListener("submit", async function (event) {
     try {
-      event.preventDefault;
-      //the formData requires a binary string for the image
-      const addWorksPicture = getPictureBlob();
+      event.preventDefault();
+      const addWorksTitle = document.getElementById("add-works-title").value;
+      const addWorksCategory =
+        document.getElementById("add-works-category").value;
 
       const formData = new FormData();
-      formData.append("image", addWorksPicture);
+      formData.append("image", selectedPicture);
       formData.append("title", addWorksTitle);
       formData.append("category", addWorksCategory);
-      const response = await fetch("http://localhost:5678/api/works/", {
+      const response = await fetch("http://localhost:5678/api/works", {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
         body: formData,
@@ -657,17 +593,26 @@ function newWorksFormSubmit() {
       const newWork = await response.json();
       switch (response.status) {
         case 201:
-          //clears each gallery and puts the new work through the function to create the respective elements
-          document.querySelector(".gallery").innerHTML = "";
-
+          //puts the new work through the function to create the respective elements
           displayWorks(newWork);
-          document.querySelector(".bin-gallery").innerHTML = "";
           createBinGallery(newWork);
 
-          alert("L'élément a bien été ajouté");
-          //resetting the form and the picture input area
+          //clears regular fields
           addWorksForm.reset();
-          populateAddPictureArea();
+
+          //clears image preview, safe to do as it is generated each time
+          document.querySelector(".picture-preview").remove();
+
+          //Shows the picture input part of the form again
+          pictureFormElement.forEach((element) => {
+            element.classList.remove("no-display");
+          });
+
+          //Resets the submit button to disabled until next valid input
+          addWorksBtn.classList.add("disabled-btn");
+          addWorksBtn.disabled = true;
+
+          alert("L'élément a bien été ajouté");
 
           break;
         case 400:
