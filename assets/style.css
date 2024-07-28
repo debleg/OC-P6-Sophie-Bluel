@@ -207,6 +207,7 @@ li:hover {
 
 .nav-strong {
   font-weight: bold;
+  cursor: pointer;
 }
 
 #introduction {
@@ -232,6 +233,11 @@ li:hover {
 #introduction p {
   margin-bottom: 0.5em;
 }
+
+#portfolio {
+  padding-top: 60px; /*otherwise section margins collapse!*/
+}
+
 #portfolio h2 {
   text-align: center;
   margin-bottom: 1em;
@@ -241,11 +247,6 @@ li:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.edit-area {
-  /*remove this bit and corresponding html if not in use */
-  display: inline-block;
 }
 
 .edit-link {
@@ -266,7 +267,6 @@ li:hover {
   justify-content: center;
   gap: 10px;
   padding-top: 18px;
-  padding-bottom: 50px;
 }
 
 .category-button {
@@ -293,6 +293,7 @@ li:hover {
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 20px;
   grid-row-gap: 20px;
+  padding-top: 50px;
 }
 
 .gallery img {
@@ -318,7 +319,8 @@ li:hover {
   margin-bottom: 20px;
 }
 #contact form,
-#login form {
+#login form,
+.modal form {
   text-align: left;
   margin-top: 30px;
   display: flex;
@@ -326,16 +328,32 @@ li:hover {
 }
 
 #contact input,
-#login input {
+#login input,
+.modal input,
+.modal select {
   height: 36px;
   font-size: 1em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  padding: 0 1em;
 }
+
+br {
+  /*Will add extra space in the form in Chrome*/
+  display: none;
+}
+
+.modal select {
+  height: 51px;
+  background: transparent;
+}
+
 #contact label,
-#login label {
-  margin: 2em 0 1em 0;
+#login label,
+.modal label {
+  margin: 2em 0 0.7em 0;
 }
+
 #contact textarea {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -378,4 +396,247 @@ footer nav ul {
 
 footer nav ul li {
   font-size: 1em;
+}
+
+/*Modal starts here*/
+
+.modal {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s both ease-in-out;
+}
+
+.modal-wrapper {
+  overflow: hidden;
+  width: 580px;
+  max-width: calc(100vw - 20px);
+  height: 620px;
+  max-height: calc(100vh - 20px);
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  animation: scaleUp 0.5s both 0.1s ease-in-out;
+}
+
+.modal[aria-hidden="true"] {
+  animation-name: fadeOut;
+}
+
+.modal[aria-hidden="true"] .modal-wrapper {
+  animation-name: scaleDown;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleDown {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0);
+  }
+}
+
+/*Elements used in both modal views*/
+
+.modal-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.modal .btn-close {
+  margin-left: auto;
+}
+
+.modal button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.remove-works-view,
+.add-works-view {
+  box-sizing: border-box;
+  padding: 0 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal h3 {
+  font-size: 26px;
+  padding: 18px 0;
+}
+
+.modal hr {
+  width: 100%;
+  color: #b3b3b3;
+  margin-top: 42px;
+}
+
+.modal .modal-bottom-btn {
+  font-family: "Syne";
+  font-weight: 700;
+  color: white;
+  background-color: #1d6154;
+  margin: 2em auto 0 auto;
+  width: 237px;
+  height: 36px;
+  text-align: center;
+  border-radius: 60px;
+  margin-bottom: 1em;
+  cursor: pointer;
+}
+
+/*First modal view elements*/
+
+.bin-gallery {
+  height: 380px;
+  overflow: auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-auto-rows: 102px;
+  grid-column-gap: 7px;
+  grid-row-gap: 26px;
+  padding-top: 27px;
+}
+
+.binned-item {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.bin-gallery img {
+  width: 100%;
+  cursor: inherit;
+}
+
+.modal .bin-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #ffffff;
+  background-color: #000;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: inherit;
+}
+
+/*Second modal view elements*/
+
+.add-picture-area {
+  height: 130px;
+  width: 420px;
+  margin-top: 20px;
+  padding: 20px 0;
+  background-color: #e8f1f6;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-picture-area i {
+  color: #b9c5cc;
+}
+
+.add-picture-area .add-picture {
+  background-color: #b9c5cc;
+  color: #306685;
+  font-size: 14px;
+  border-radius: 50px;
+  width: 173px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.add-picture-area .picture-details {
+  color: #444444;
+  font-size: 10px;
+}
+
+.picture-preview {
+  max-height: 169px;
+  max-width: 100%;
+}
+.add-works-view form {
+  width: 420px;
+  margin-top: 0;
+}
+.add-works-view label {
+  font-size: 14px;
+  color: #3d3d3d;
+}
+
+.add-works-view input {
+  height: 51px;
+}
+
+.modal .disabled-btn {
+  background: #a7a7a7;
+}
+
+.form-alert {
+  color: red;
+  text-align: center;
+}
+
+/*Animation used on modal view change*/
+
+.slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(calc(100vh - 150px));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/*Utilitary class to avoid manipulating display in html or javascript directly */
+.no-display {
+  display: none;
 }
