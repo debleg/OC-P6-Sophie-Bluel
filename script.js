@@ -23,7 +23,7 @@ const fetchWorks = async () => {
  * Creates figure element in the main gallery for each work entered as parameter
  * @param {Object} work
  */
-function displayWorks(work) {
+function displayMainGalleryWorks(work) {
   //creation of the 3 components for each work
   const figure = document.createElement("figure");
   const galleryImg = document.createElement("img");
@@ -48,14 +48,15 @@ function displayWorks(work) {
 }
 
 /**
- * Loops through works to create gallery elements in main page
+ * Loops through works to create gallery elements in main page and modal view
  */
 const displayFetchWorks = async () => {
   try {
     //works has to be stored in a variable as it doesn't exist outside of the function that generates it
     const works = await fetchWorks();
     works.forEach((work) => {
-      displayWorks(work);
+      displayMainGalleryWorks(work);
+      displayBinGalleryWorks(work);
     });
   } catch (error) {
     console.log("An error occurred:", error);
@@ -75,6 +76,33 @@ const fetchCategories = async () => {
     console.log("An error occurred:", error);
   }
 };
+
+/**
+ * Creates the "Tous" reset filter button
+ */
+function createFilterReset() {
+  //Creates a "Tous" button that will allow the display of all categories
+  const buttonAll = document.createElement("button");
+  const buttonAllName = "Tous";
+  buttonAll.innerText = buttonAllName;
+  buttonAll.dataFilter = buttonAllName;
+  buttonAll.classList.add("category-button");
+  buttonAll.classList.add("active-button");
+  categoryFilters.appendChild(buttonAll);
+}
+
+/**
+ * Creates the category buttons
+ * @param category
+ */
+function createCategoryButtons(category) {
+  const buttonCategory = document.createElement("button");
+  const categoryName = category.name;
+  buttonCategory.innerText = categoryName;
+  buttonCategory.dataFilter = categoryName;
+  buttonCategory.classList.add("category-button");
+  categoryFilters.appendChild(buttonCategory);
+}
 
 /** Filters and displays works using category buttons */
 const filterCategory = async () => {
@@ -100,13 +128,15 @@ const filterCategory = async () => {
 
         //The Tous button resets the default (all works are displayed) or a filter is applied and only filtered works are displayed
         if (buttonDataFilter === "Tous") {
-          displayFetchWorks();
+          Array.from(works).forEach((work) => {
+            displayMainGalleryWorks(work);
+          });
         } else {
           const worksFiltered = works.filter(
             (work) => work.category.name === buttonDataFilter
           );
           Array.from(worksFiltered).forEach((worksFiltered) => {
-            displayWorks(worksFiltered);
+            displayMainGalleryWorks(worksFiltered);
           });
         }
       });
@@ -116,29 +146,21 @@ const filterCategory = async () => {
   }
 };
 
-/** Creates the category button, then applies the filtering function */
-const categoryButtons = async () => {
+/**
+ * Pulls together buttons and filtering for the main page and the modal dropdown
+ */
+const createFilterAbilities = async () => {
   try {
-    //Creates a "Tous" button that will allow the display of all categories
-    const buttonAll = document.createElement("button");
-    const buttonAllName = "Tous";
-    buttonAll.innerText = buttonAllName;
-    buttonAll.dataFilter = buttonAllName;
-    buttonAll.classList.add("category-button");
-    buttonAll.classList.add("active-button");
-    categoryFilters.appendChild(buttonAll);
+    //creates "Tous" reset button
+    createFilterReset();
 
     //Allows the use of the return of the fetchCategories function
     const categories = await fetchCategories();
 
-    //Creates a button for each category with its name
+    //Creates a button for each category with its name and the modal dropdown
     categories.forEach((category) => {
-      const buttonCategory = document.createElement("button");
-      const categoryName = category.name;
-      buttonCategory.innerText = categoryName;
-      buttonCategory.dataFilter = categoryName;
-      buttonCategory.classList.add("category-button");
-      categoryFilters.appendChild(buttonCategory);
+      createCategoryButtons(category);
+      createCategoryDropdown(category);
     });
 
     //allows filtering using the buttons
@@ -152,7 +174,7 @@ const categoryButtons = async () => {
 displayFetchWorks();
 
 //creates the category filter buttons
-categoryButtons();
+createFilterAbilities();
 
 //NEW MODAL WORK STARTS HERE
 
@@ -195,7 +217,320 @@ function userTokenHandler() {
 
 userTokenHandler();
 
-//Modal starts here
+//Modal view management starts here
+
+//Note: The main view is visible on each modal opening
+
+const mainView = document.querySelector(".remove-works-view");
+const secondaryView = document.querySelector(".add-works-view");
+const forwardBtn = document.querySelector(".add-works-redirect");
+const backBtn = document.querySelector(".js-modal-switch-view");
+backBtn.classList.add("no-display");
+
+//Behaviour of the forward button
+forwardBtn.addEventListener("click", () => {
+  mainView.classList.add("no-display");
+  backBtn.classList.remove("no-display");
+  secondaryView.classList.add("slideUp");
+  secondaryView.classList.remove("no-display");
+});
+
+//Behaviour of the back button
+backBtn.addEventListener("click", () => {
+  backBtn.classList.add("no-display");
+  secondaryView.classList.add("no-display");
+  mainView.classList.add("slideUp");
+  mainView.classList.remove("no-display");
+});
+
+//First modal view starts here
+
+const binGallery = document.querySelector(".bin-gallery");
+
+/**
+ * Creates gallery element in first modal with bin icon overlapped for later deletion for each work
+ * @param {object} work
+ */
+function displayBinGalleryWorks(work) {
+  const binnedItem = document.createElement("div");
+  binnedItem.classList.add("binned-item");
+  binnedItem.dataset.id = work.id;
+  binnedItem.addEventListener("click", deleteWork);
+
+  const galleryImg = document.createElement("img");
+  const galleryImgSrc = work.imageUrl;
+  galleryImg.src = galleryImgSrc;
+
+  const elementTitle = work.title;
+  galleryImg.alt = elementTitle;
+
+  const binButton = document.createElement("button");
+  binButton.classList.add("bin-btn");
+
+  const galleryBinIcon = document.createElement("i");
+  galleryBinIcon.classList.add("fa-solid", "fa-trash-can", "fa-xs");
+
+  binGallery.appendChild(binnedItem);
+  binnedItem.appendChild(galleryImg);
+  binnedItem.appendChild(binButton);
+  binButton.appendChild(galleryBinIcon);
+}
+
+/**
+ * Deletes selected work on click in the first modal gallery using API call and removes the work dynamically
+ * @param {click} event
+ */
+const deleteWork = async (event) => {
+  try {
+    const id = event.currentTarget.dataset.id;
+    if (window.confirm("Supprimer cet élément définitivement ?")) {
+      const response = await fetch(`http://localhost:5678/api/works/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        method: "DELETE",
+      });
+
+      const worksToDelete = document.querySelectorAll(`[data-id="${id}"]`);
+
+      switch (response.status) {
+        case 200:
+        case 204:
+          worksToDelete.forEach((work) => work.remove());
+          alert("L'élément a bien été supprimé");
+          break;
+        case 401:
+          alert("Cette suppression n'est pas autorisée");
+          break;
+        default:
+          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
+      }
+    }
+  } catch (error) {
+    console.log("An error occurred:", error);
+  }
+};
+
+// Second modal view starts here
+
+// select input
+const categoriesDropdownContainer =
+  document.getElementById("add-works-category");
+//image input section of the "Ajout Photo"
+const addPictureArea = document.querySelector(".add-picture-area");
+const addPictureBtn = document.createElement("button");
+const addPictureInput = document.createElement("input");
+
+/**
+ * Creates the category dropdown dynamically (one empty field hardcoded in html to have empty value show by default)
+ * @param category
+ */
+function createCategoryDropdown(category) {
+  const categoryName = category.name;
+  const categoryId = category.id;
+  const categoryOption = document.createElement("option");
+  categoryOption.value = categoryId;
+  categoryOption.innerText = categoryName;
+  categoriesDropdownContainer.appendChild(categoryOption);
+}
+
+/**
+ * Creates the picture input part of the form dynamically
+ */
+function populateAddPictureArea() {
+  //icon
+  const pictureIcon = document.createElement("i");
+  pictureIcon.classList.add(
+    "picture-icon",
+    "picture-form-element",
+    "fa-regular",
+    "fa-image",
+    "fa-5x"
+  );
+  //button
+  addPictureBtn.classList.add("add-picture", "picture-form-element");
+  addPictureBtn.innerText = "+ Ajouter photo";
+  addPictureBtn.setAttribute("type", "button");
+  //hidden input
+  addPictureInput.classList.add("no-display", "add-picture-input");
+  addPictureInput.setAttribute("id", "add-picture-input");
+  addPictureInput.setAttribute("name", "add-picture-image");
+  addPictureInput.setAttribute("type", "file");
+  addPictureInput.setAttribute("accept", "image/jpeg, image/png");
+  //size/format description
+  const pictureDetails = document.createElement("p");
+  pictureDetails.classList.add("picture-details", "picture-form-element");
+  pictureDetails.innerText = "jpg, png: 4mo max";
+  //appending all
+  addPictureArea.append(
+    pictureIcon,
+    addPictureBtn,
+    addPictureInput,
+    pictureDetails
+  );
+}
+
+populateAddPictureArea();
+
+//Secondary modal input treatment starts here
+
+//general form variables
+const addWorksForm = document.querySelector(".add-works-form");
+const addWorksBtn = document.querySelector(".add-works-btn");
+const pictureFormElement = document.querySelectorAll(".picture-form-element");
+//image related variables
+const maxPictureSize = 4 * 1024 * 1024;
+let selectedPicture = null;
+
+/**
+ * Displays a preview of the user input image file where the picture input form was
+ * @param {ImageData} pictureInput
+ */
+function displayNewImage(pictureInput) {
+  const displayImage = new FileReader();
+  displayImage.onload = () => {
+    const picturePreview = document.createElement("img");
+    picturePreview.classList.add("picture-preview");
+    picturePreview.src = URL.createObjectURL(pictureInput);
+    addPictureArea.appendChild(picturePreview);
+  };
+  //clear area and preview image
+  pictureFormElement.forEach((element) => {
+    element.classList.add("no-display");
+  });
+  displayImage.readAsArrayBuffer(pictureInput);
+}
+
+/**
+ * Handles form image input with checks for size and type
+ */
+function imageInput() {
+  //clicking the button opens the input
+  addPictureBtn.addEventListener("click", () => {
+    addPictureInput.click();
+  });
+
+  addPictureInput.addEventListener("change", (event) => {
+    const pictureInput = event.target.files[0];
+
+    if (!pictureInput) return;
+
+    if (
+      pictureInput.type !== "image/jpeg" &&
+      pictureInput.type !== "image/png"
+    ) {
+      alert("Veuillez sélectionner une image");
+      return;
+    }
+
+    if (pictureInput.size > maxPictureSize) {
+      alert("La taille de votre image dépasse la limite autorisée");
+      return;
+    }
+
+    selectedPicture = pictureInput;
+
+    displayNewImage(pictureInput);
+  });
+}
+
+/**
+ * Sends API POST request after the form completion has been checked, then updates the galleries dynamically with the new work
+ */
+function newWorksFormSubmit() {
+  imageInput();
+
+  let title = document.getElementById("add-works-title");
+  let category = document.getElementById("add-works-category");
+
+  //creates a paragraph to display as an alert if the form is not fully filled
+  const formAlert = document.createElement("p");
+  formAlert.innerText = "Veuillez remplir tout le formulaire avant l'envoi";
+  formAlert.classList.add("no-display", "form-alert");
+  addWorksForm.appendChild(formAlert);
+
+  addWorksForm.addEventListener("change", () => {
+    //checks all fields are filled with visual cues for the user
+    if (
+      selectedPicture &&
+      title.reportValidity() &&
+      category.reportValidity()
+    ) {
+      addWorksBtn.classList.remove("disabled-btn");
+      addWorksBtn.disabled = false;
+      formAlert.classList.add("no-display");
+    } else {
+      addWorksBtn.classList.add("disabled-btn");
+      addWorksBtn.disabled = true;
+      formAlert.classList.remove("no-display");
+    }
+  });
+
+  addWorksForm.addEventListener("submit", async function (event) {
+    try {
+      event.preventDefault();
+      const addWorksTitle = document.getElementById("add-works-title").value;
+      const addWorksCategory =
+        document.getElementById("add-works-category").value;
+
+      const formData = new FormData();
+      formData.append("image", selectedPicture);
+      formData.append("title", addWorksTitle);
+      formData.append("category", addWorksCategory);
+      const response = await fetch("http://localhost:5678/api/works", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const newWork = await response.json();
+      switch (response.status) {
+        case 201:
+          //puts the new work through the function to create the respective elements
+          displayMainGalleryWorks(newWork);
+          displayBinGalleryWorks(newWork);
+
+          //clears regular fields and preview picture
+          addWorksForm.reset();
+          selectedPicture = "";
+
+          //clears image preview, safe to do as it is generated each time
+          document.querySelector(".picture-preview").remove();
+
+          //Shows the picture input part of the form again
+          pictureFormElement.forEach((element) => {
+            element.classList.remove("no-display");
+          });
+
+          //Resets the submit button to disabled until next valid input
+          addWorksBtn.classList.add("disabled-btn");
+          addWorksBtn.disabled = true;
+
+          alert("L'élément a bien été ajouté");
+
+          break;
+        case 400:
+          alert(
+            "Le formulaire n'a pas pu être traité, veuillez vérifier la validité des champs"
+          );
+          break;
+        case 401:
+          alert("Cet ajout n'est pas autorisé");
+          break;
+        default:
+          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
+      }
+    } catch (error) {
+      console.log("An error occurred:", error);
+    }
+  });
+}
+
+newWorksFormSubmit();
+
+//Modal management starts here
 
 let modal = null;
 const focusableSelector = "button, a, i, input, textarea";
@@ -301,335 +636,3 @@ window.addEventListener("keydown", function (e) {
     focusInModal(e);
   }
 });
-
-//Modal view management starts here
-
-//Note: The main view is visible on each modal opening
-
-const mainView = document.querySelector(".remove-works-view");
-const secondaryView = document.querySelector(".add-works-view");
-const forwardBtn = document.querySelector(".add-works-redirect");
-const backBtn = document.querySelector(".js-modal-switch-view");
-backBtn.classList.add("no-display");
-
-//Behaviour of the forward button
-forwardBtn.addEventListener("click", () => {
-  mainView.classList.add("no-display");
-  backBtn.classList.remove("no-display");
-  secondaryView.classList.add("slideUp");
-  secondaryView.classList.remove("no-display");
-});
-
-//Behaviour of the back button
-backBtn.addEventListener("click", () => {
-  backBtn.classList.add("no-display");
-  secondaryView.classList.add("no-display");
-  mainView.classList.add("slideUp");
-  mainView.classList.remove("no-display");
-});
-
-//First modal view starts here
-
-const binGallery = document.querySelector(".bin-gallery");
-
-/**
- * Creates gallery element in first modal with bin icon overlapped for later deletion for each work
- * @param {object} work
- */
-function createBinGallery(work) {
-  const binnedItem = document.createElement("div");
-  binnedItem.classList.add("binned-item");
-  binnedItem.dataset.id = work.id;
-  binnedItem.addEventListener("click", deleteWork);
-
-  const galleryImg = document.createElement("img");
-  const galleryImgSrc = work.imageUrl;
-  galleryImg.src = galleryImgSrc;
-
-  const elementTitle = work.title;
-  galleryImg.alt = elementTitle;
-
-  const binButton = document.createElement("button");
-  binButton.classList.add("bin-btn");
-
-  const galleryBinIcon = document.createElement("i");
-  galleryBinIcon.classList.add("fa-solid", "fa-trash-can", "fa-xs");
-
-  binGallery.appendChild(binnedItem);
-  binnedItem.appendChild(galleryImg);
-  binnedItem.appendChild(binButton);
-  binButton.appendChild(galleryBinIcon);
-}
-
-/**
- * Loops through works to create the gallery elements in modal
- */
-const displayBinWorks = async () => {
-  try {
-    const works = await fetchWorks();
-    works.forEach((work) => {
-      createBinGallery(work);
-    });
-  } catch (error) {
-    console.log("An error occurred:", error);
-  }
-};
-
-/**
- * Deletes selected work on click in the first modal gallery using API call and removes the work dynamically
- * @param {click} event
- */
-const deleteWork = async (event) => {
-  try {
-    const id = event.currentTarget.dataset.id;
-    if (window.confirm("Supprimer cet élément définitivement ?")) {
-      const response = await fetch(`http://localhost:5678/api/works/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        method: "DELETE",
-      });
-
-      const worksToDelete = document.querySelectorAll(`[data-id="${id}"]`);
-
-      switch (response.status) {
-        case 200:
-        case 204:
-          worksToDelete.forEach((work) => work.remove());
-          alert("L'élément a bien été supprimé");
-          break;
-        case 401:
-          alert("Cette suppression n'est pas autorisée");
-          break;
-        default:
-          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
-      }
-    }
-  } catch (error) {
-    console.log("An error occurred:", error);
-  }
-};
-
-displayBinWorks();
-
-// Second modal view starts here
-
-// select input
-const categoriesDropdownContainer =
-  document.getElementById("add-works-category");
-//image input section of the "Ajout Photo"
-const addPictureArea = document.querySelector(".add-picture-area");
-const addPictureBtn = document.createElement("button");
-const addPictureInput = document.createElement("input");
-
-/**
- * Creates the category dropdown dynamically (one empty field hardcoded in html to have empty value show by default)
- */
-const categoriesDropdown = async () => {
-  const categories = await fetchCategories();
-  categories.forEach((category) => {
-    const categoryName = category.name;
-    const categoryId = category.id;
-    const categoryOption = document.createElement("option");
-    categoryOption.value = categoryId;
-    categoryOption.innerText = categoryName;
-    categoriesDropdownContainer.appendChild(categoryOption);
-  });
-};
-
-/**
- * Creates the picture input part of the form dynamically
- */
-function populateAddPictureArea() {
-  //icon
-  const pictureIcon = document.createElement("i");
-  pictureIcon.classList.add(
-    "picture-icon",
-    "picture-form-element",
-    "fa-regular",
-    "fa-image",
-    "fa-5x"
-  );
-  //button
-  addPictureBtn.classList.add("add-picture", "picture-form-element");
-  addPictureBtn.innerText = "+ Ajouter photo";
-  addPictureBtn.setAttribute("type", "button");
-  //hidden input
-  addPictureInput.classList.add("no-display", "add-picture-input");
-  addPictureInput.setAttribute("id", "add-picture-input");
-  addPictureInput.setAttribute("name", "add-picture-image");
-  addPictureInput.setAttribute("type", "file");
-  addPictureInput.setAttribute("accept", "image/jpeg, image/png");
-  //size/format description
-  const pictureDetails = document.createElement("p");
-  pictureDetails.classList.add("picture-details", "picture-form-element");
-  pictureDetails.innerText = "jpg, png: 4mo max";
-  //appending all
-  addPictureArea.append(
-    pictureIcon,
-    addPictureBtn,
-    addPictureInput,
-    pictureDetails
-  );
-}
-
-populateAddPictureArea();
-categoriesDropdown();
-
-//Secondary modal input treatment starts here
-
-//general form variables
-const addWorksForm = document.querySelector(".add-works-form");
-const addWorksBtn = document.querySelector(".add-works-btn");
-const pictureFormElement = document.querySelectorAll(".picture-form-element");
-//image related variables
-const maxPictureSize = 4 * 1024 * 1024;
-let selectedPicture = null;
-
-/**
- * Displays a preview of the user input image file where the picture input form was
- * @param {ImageData} pictureInput
- */
-function displayNewImage(pictureInput) {
-  const displayImage = new FileReader();
-  displayImage.onload = () => {
-    const picturePreview = document.createElement("img");
-    picturePreview.classList.add("picture-preview");
-    picturePreview.src = URL.createObjectURL(pictureInput);
-    addPictureArea.appendChild(picturePreview);
-  };
-  //clear area and preview image
-  pictureFormElement.forEach((element) => {
-    element.classList.add("no-display");
-  });
-  displayImage.readAsArrayBuffer(pictureInput);
-}
-
-/**
- * Handles form image input with checks for size and type
- */
-function imageInput() {
-  //clicking the button opens the input
-  addPictureBtn.addEventListener("click", () => {
-    addPictureInput.click();
-  });
-
-  addPictureInput.addEventListener("change", (event) => {
-    const pictureInput = event.target.files[0];
-
-    if (!pictureInput) return;
-
-    if (
-      pictureInput.type !== "image/jpeg" &&
-      pictureInput.type !== "image.png"
-    ) {
-      alert("Veuillez sélectionner une image");
-      return;
-    }
-
-    if (pictureInput.size > maxPictureSize) {
-      alert("La taille de votre image dépasse la limite autorisée");
-      return;
-    }
-
-    selectedPicture = pictureInput;
-
-    displayNewImage(pictureInput);
-  });
-}
-
-/**
- * Sends API POST request after the form completion has been checked, then updates the galleries dynamically with the new work
- */
-function newWorksFormSubmit() {
-  imageInput();
-
-  let title = document.getElementById("add-works-title");
-  let category = document.getElementById("add-works-category");
-
-  //creates a paragraph to display as an alert if the form is not fully filled
-const formAlert = document.createElement("p")
-formAlert.innerText = "Veuillez remplir tout le formulaire avant l'envoi"
-formAlert.classList.add("no-display", "form-alert")
-addWorksForm.appendChild(formAlert)
-
-  addWorksForm.addEventListener("change", () => {
-   
-    //checks all fields are filled with visual cues for the user
-    if (
-      selectedPicture &&
-      title.reportValidity() &&
-      category.reportValidity()
-    ) {
-      addWorksBtn.classList.remove("disabled-btn");
-      addWorksBtn.disabled = false;
-      formAlert.classList.add("no-display")
-    } else {
-      addWorksBtn.classList.add("disabled-btn");
-      addWorksBtn.disabled = true;
-      formAlert.classList.remove("no-display")
-    }
-  });
-
-  addWorksForm.addEventListener("submit", async function (event) {
-    try {
-      event.preventDefault();
-      const addWorksTitle = document.getElementById("add-works-title").value;
-      const addWorksCategory =
-        document.getElementById("add-works-category").value;
-
-      const formData = new FormData();
-      formData.append("image", selectedPicture);
-      formData.append("title", addWorksTitle);
-      formData.append("category", addWorksCategory);
-      const response = await fetch("http://localhost:5678/api/works", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-      const newWork = await response.json();
-      switch (response.status) {
-        case 201:
-          //puts the new work through the function to create the respective elements
-          displayWorks(newWork);
-          createBinGallery(newWork);
-
-          //clears regular fields
-          addWorksForm.reset();
-
-          //clears image preview, safe to do as it is generated each time
-          document.querySelector(".picture-preview").remove();
-
-          //Shows the picture input part of the form again
-          pictureFormElement.forEach((element) => {
-            element.classList.remove("no-display");
-          });
-
-          //Resets the submit button to disabled until next valid input
-          addWorksBtn.classList.add("disabled-btn");
-          addWorksBtn.disabled = true;
-
-          alert("L'élément a bien été ajouté");
-
-          break;
-        case 400:
-          alert(
-            "Le formulaire n'a pas pu être traité, veuillez vérifier la validité des champs"
-          );
-          break;
-        case 401:
-          alert("Cet ajout n'est pas autorisé");
-          break;
-        default:
-          alert("Une erreur est survenue, veuillez réessayer ultérieurement");
-      }
-    } catch (error) {
-      console.log("An error occurred:", error);
-    }
-  });
-}
-
-newWorksFormSubmit();
